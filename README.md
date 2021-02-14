@@ -1,1 +1,1 @@
-an idea I discovered while playing with sin and cos
+a *accurate* rendition anxious nights using loop subdivision
