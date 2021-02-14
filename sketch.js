@@ -3,29 +3,39 @@ let canw = 800;
 let canh = 800;
 
 class Triangle {
-    constructor(A, B, C, parent, speed, lerpDist, isLargest) {
+    constructor(A, B, C, parent, speed, lerpDist, color, child) {
         this.A = A
         this.B = B
         this.C = C
         this.parent = parent
         this.speed = speed
         this.lerpDist = lerpDist
-        this.isLargest = isLargest
+        this.color = color
+        this.child = child  // usually a triangle won't know its child in advance
     }
 }
 
-let parent = new Triangle([200, 400], [600, 400], [400, 400-346.410161514], null, 0.05, 0, true)
-let child = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), parent, 0.01, 0, 0)
-let child2 = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), child, -0.005, 0, 0)
+let parent; 
+let child;  
+let child2; 
+let arr = [];
+let killThresh = Math.sqrt((canw/2)*(canw/2)+(canh/2)*(canh/2))
 
+let bgcol;
 function setup() {
     can = createCanvas(canh, canw)
     frameRate(30)
+    parent = new Triangle([200, 400], [600, 400], [400, 400-346.410161514], null, 0.05, 0, color("purple"))
+    child = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), parent, 0.01, 0, 0)
+    child2 = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), child, -0.005, 0, 0)
+    bgcol = color("lightblue");
+    largest = { pointer:parent };  // largest triangle
+    arr.push(parent)
 }
 
-let base = r = 200;
+let base = r = 300;
 function draw() {
-    background("white")
+    background(bgcol)
     let t = frameCount/30;
     // let t = 1;
     translate(canw/2, canh/2)
@@ -33,13 +43,13 @@ function draw() {
     let A = [cos(t)*r, sin(t)*r]
     let B = [cos(t-2*Math.PI/3)*r, sin(t-2*Math.PI/3)*r]
     let C = [cos(t+2*Math.PI/3)*r, sin(t+2*Math.PI/3)*r]
-    parent.A = A;
-    parent.B = B;
-    parent.C = C;
-    r+=1;
+    arr[0].A = A;
+    arr[0].B = B;
+    arr[0].C = C;
+    r+=10;
 
     beginShape()
-    fill("lightblue")
+    fill(arr[0].color)
     vertex(A[0], A[1])
     vertex(B[0], B[1])
     vertex(C[0], C[1])
@@ -53,7 +63,26 @@ function draw() {
     moveTriangle(child2)
     drawTriangle(child2)
     // noLoop()
+    let midpoint = [lerp(arr[0].A[0], arr[0].B[0], 0.5), lerp(arr[0].A[1], arr[0].B[1], 0.5)]
+    print("midpoint is "+midpoint)
+    // print(midpoint)
+    print(arr[0])
+    if (getDistToOrigin(midpoint) > killThresh) {
+        print("dist is"+getDistToOrigin(midpoint))
+        bgcol = arr[0].color;
+        replaceLargest();
+        // delete largest here from
+    }
     
+}
+
+function getDistToOrigin(pair) {
+    return dist(0, 0, pair[0], pair[1])  // Origin is 0,0 because we translate when drawing
+}
+
+function replaceLargest() {
+    print("replaced")
+    arr.shift();
 }
 
 function moveTriangle(tri) {
