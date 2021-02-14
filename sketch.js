@@ -36,24 +36,45 @@ let child = new Triangle(
 
 function setup() {
     can = createCanvas(canh, canw)
-    frameRate(20)
+    frameRate(5)
 }
 
+
+
+    // [200, 400],
+    // [600, 400],
+    // [400, 400-346.410161514],
+let base = r = 0.1;
 function draw() {
-    moveTriangle(child)
-    drawTriangle(child)
-    if(frameCount > 20) noLoop()
+    background("white")
+    let t = frameCount/3;
+    translate(canw/2, canh/2)
+
+    beginShape()
+    fill("blue")
+    ellipse(cos(t)*100, sin(t)*100, 10, 10)
+    fill("red")
+    ellipse(cos(t-2*Math.PI/3)*100, sin(t-2*Math.PI/3)*100, 10, 10)
+    fill("green")
+    ellipse(cos(t+2*Math.PI/3)*100, sin(t+2*Math.PI/3)*100, 10, 10)
+    // vertex(cos(t)+200, sin(t)+400)
+    // vertex(cos(t)+600, sin(t)+400)
+    // vertex(cos(t)+400, sin(t)+53.589838486)
+    endShape(CLOSE)
+    // noLoop()
+    
+    r+=0.05;
 }
 
 function moveTriangle(tri) {
-        tri.A[0] = lerp(tri.parent.A[0], tri.parent.B[0], tri.lerpDist)
-        tri.A[1] = lerp(tri.parent.A[1], tri.parent.B[1], tri.lerpDist)
-        tri.B[0] = lerp(tri.parent.B[0], tri.parent.C[0], tri.lerpDist)
-        tri.B[1] = lerp(tri.parent.B[1], tri.parent.C[1], tri.lerpDist)
-        tri.C[0] = lerp(tri.parent.C[0], tri.parent.A[0], tri.lerpDist)
-        tri.C[1] = lerp(tri.parent.C[1], tri.parent.A[1], tri.lerpDist)
-        tri.lerpDist += tri.speed
-        tri.lerpDist = tri.lerpDist % 1;
+    tri.A[0] = lerp(tri.parent.A[0], tri.parent.B[0], tri.lerpDist)
+    tri.A[1] = lerp(tri.parent.A[1], tri.parent.B[1], tri.lerpDist)
+    tri.B[0] = lerp(tri.parent.B[0], tri.parent.C[0], tri.lerpDist)
+    tri.B[1] = lerp(tri.parent.B[1], tri.parent.C[1], tri.lerpDist)
+    tri.C[0] = lerp(tri.parent.C[0], tri.parent.A[0], tri.lerpDist)
+    tri.C[1] = lerp(tri.parent.C[1], tri.parent.A[1], tri.lerpDist)
+    tri.lerpDist += tri.speed
+    tri.lerpDist = tri.lerpDist % 1;
 }
 
 
