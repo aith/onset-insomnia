@@ -1,6 +1,6 @@
 let can;
-let canw = 700;
-let canh = 700;
+let canw = 800;
+let canh = 800;
 
 class Triangle {
     constructor(A, B, C, parent, speed, lerpDist, isLargest) {
@@ -14,25 +14,8 @@ class Triangle {
     }
 }
 
-let parent = new Triangle(
-    [200, 400],
-    [600, 400],
-    [400, 400-346.410161514],
-    null,
-    0.05,
-    0,
-    true
-)
-
-let child = new Triangle(
-    parent.A.slice(),  // these arent supposed to be referenced but they leave cool artifacts
-    parent.B.slice(),
-    parent.C.slice(),
-    parent,
-    0.05,
-    0,
-    0
-)
+let parent = new Triangle([200, 400], [600, 400], [400, 400-346.410161514], null, 0.05, 0, true)
+let child = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), parent, 0.05, 0, 0)
 
 function setup() {
     can = createCanvas(canh, canw)
@@ -42,23 +25,30 @@ function setup() {
 let base = r = 200;
 function draw() {
     background("white")
-    let t = frameCount/10;
+    // let t = frameCount/10;
+    let t = 1;
     translate(canw/2, canh/2)
+
+    let A = [cos(t)*r, sin(t)*r]
+    let B = [cos(t-2*Math.PI/3)*r, sin(t-2*Math.PI/3)*r]
+    let C = [cos(t+2*Math.PI/3)*r, sin(t+2*Math.PI/3)*r]
+    parent.A = A;
+    parent.B = B;
+    parent.C = C;
 
     beginShape()
     fill("blue")
-    vertex(cos(t)*r, sin(t)*r)
-    fill("red")
-    vertex(cos(t-2*Math.PI/3)*r, sin(t-2*Math.PI/3)*r)
-    fill("green")
-    vertex(cos(t+2*Math.PI/3)*r, sin(t+2*Math.PI/3)*r)
-    // vertex(cos(t)+200, sin(t)+400)
-    // vertex(cos(t)+600, sin(t)+400)
-    // vertex(cos(t)+400, sin(t)+53.589838486)
+    vertex(A[0], A[1])
+    vertex(B[0], B[1])
+    vertex(C[0], C[1])
     endShape(CLOSE)
+
+    fill("green")
+    moveTriangle(child)
+    drawTriangle(child)
     // noLoop()
     
-    r+=5;
+    // r+=5;
 }
 
 function moveTriangle(tri) {
