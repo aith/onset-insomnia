@@ -1,7 +1,7 @@
 /* A spin-off of loop subdivision! Wake me up when I learn how to choose colors interestingly. */
 let can;
-let canw = 1000;
-let canh = 1000;
+let canw = 800, canh = 800;
+let aspectWidth = 1, aspectHeight = 1;
 
 class Triangle {
     constructor(A, B, C, speed, parent, lerpDist, color) {
@@ -15,23 +15,20 @@ class Triangle {
     }
 }
 
-let parent; 
-let child;  
-let child2; 
 let arr = [];
 let totalTri = 20;
 
-let starth = Math.sqrt((3*canh)*(3*canh) - (1.5*canw)*(1.5*canw))
-let start = [
-    [-1.5*canw, canh],
-    [0, canh-starth],
-    [1.5*canw, canh]
-]
-
+let starth;
+let start;
 let bgcol;
+
+function findCanvSize() {
+   let scale = Math.min(windowWidth / aspectWidth, windowHeight / aspectHeight);
+   return scale;
+}
+
 function setup() {
-    can = createCanvas(canh, canw)
-    frameRate(60)
+    windowResized()
     parent = new Triangle(start[0].slice(), start[1].slice(), start[2].slice(), 0.005, null, 0, pickColor())
     bgcol = color(pickColor());
     arr.push(parent)
@@ -39,6 +36,15 @@ function setup() {
         let prev = arr[arr.length-1]
         arr.push(new Triangle(prev.A.slice(), prev.B.slice(), prev.C.slice(), pickSpeed(), prev, pickLerpDist(), pickColor()))
     }
+}
+
+function windowResized() {
+    frameRate(60)
+    let size = canh = canw = Math.min(windowWidth, windowHeight);
+    starth = Math.sqrt((3*canh)*(3*canh) - (1.5*canw)*(1.5*canw))
+    start = [[-1.5*canw, canh], [0, canh-starth], [1.5*canw, canh]]
+    can = createCanvas(size, size)
+    can.show()
 }
 
 let base = r = 300;
