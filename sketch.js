@@ -36,34 +36,29 @@ let child = new Triangle(
 
 function setup() {
     can = createCanvas(canh, canw)
-    frameRate(5)
+    frameRate(30)
 }
 
-
-
-    // [200, 400],
-    // [600, 400],
-    // [400, 400-346.410161514],
-let base = r = 0.1;
+let base = r = 200;
 function draw() {
     background("white")
-    let t = frameCount/3;
+    let t = frameCount/10;
     translate(canw/2, canh/2)
 
     beginShape()
     fill("blue")
-    ellipse(cos(t)*100, sin(t)*100, 10, 10)
+    vertex(cos(t)*r, sin(t)*r)
     fill("red")
-    ellipse(cos(t-2*Math.PI/3)*100, sin(t-2*Math.PI/3)*100, 10, 10)
+    vertex(cos(t-2*Math.PI/3)*r, sin(t-2*Math.PI/3)*r)
     fill("green")
-    ellipse(cos(t+2*Math.PI/3)*100, sin(t+2*Math.PI/3)*100, 10, 10)
+    vertex(cos(t+2*Math.PI/3)*r, sin(t+2*Math.PI/3)*r)
     // vertex(cos(t)+200, sin(t)+400)
     // vertex(cos(t)+600, sin(t)+400)
     // vertex(cos(t)+400, sin(t)+53.589838486)
     endShape(CLOSE)
     // noLoop()
     
-    r+=0.05;
+    r+=5;
 }
 
 function moveTriangle(tri) {
