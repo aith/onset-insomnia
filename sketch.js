@@ -3,15 +3,14 @@ let canw = 800;
 let canh = 800;
 
 class Triangle {
-    constructor(A, B, C, parent, speed, lerpDist, color, child) {
+    constructor(A, B, C, speed, parent, lerpDist, color) {
         this.A = A
         this.B = B
         this.C = C
-        this.parent = parent
         this.speed = speed
+        this.parent = parent
         this.lerpDist = lerpDist
         this.color = color
-        this.child = child  // usually a triangle won't know its child in advance
     }
 }
 
@@ -21,16 +20,31 @@ let child2;
 let arr = [];
 let killThresh = Math.sqrt((canw/2)*(canw/2)+(canh/2)*(canh/2))
 
+let starth = Math.sqrt((3*canh)*(3*canh) - (1.5*canw)*(1.5*canw))
+let start = [
+    [-1.5*canw, canh],
+    [0, canh-starth],
+    [1.5*canw, canh]
+]
+
 let bgcol;
 function setup() {
     can = createCanvas(canh, canw)
     frameRate(30)
-    parent = new Triangle([200, 400], [600, 400], [400, 400-346.410161514], null, 0.05, 0, color("purple"))
-    child = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), parent, 0.01, 0, 0)
-    child2 = new Triangle(parent.A.slice(), parent.B.slice(), parent.C.slice(), child, -0.005, 0, 0)
-    bgcol = color("lightblue");
+    parent = new Triangle(start[0].slice(), start[1].slice(), start[2].slice(), 0.005, null, 0, pickColor())
+    bgcol = color(pickColor());
     largest = { pointer:parent };  // largest triangle
     arr.push(parent)
+    // arr.push(child)
+    // arr.push(child2)
+
+    for(let i = 0; i < 10; i++) {
+        let lerpDist = random(0, 1);
+        let speed = random(0.003, 0.005)
+        let prev = arr[arr.length-1]
+        arr.push(new Triangle(prev.A.slice(), prev.B.slice(), prev.C.slice(), speed, prev, lerpDist, color(random(0,255))))
+        // arr.push(new Triangle(prev.A.slice(), prev.B.slice(), prev.C.slice(), 0.001, prev, 0, color(random(0,255))))
+    }
 }
 
 let base = r = 300;
@@ -40,40 +54,40 @@ function draw() {
     // let t = 1;
     translate(canw/2, canh/2)
 
-    let A = [cos(t)*r, sin(t)*r]
-    let B = [cos(t-2*Math.PI/3)*r, sin(t-2*Math.PI/3)*r]
-    let C = [cos(t+2*Math.PI/3)*r, sin(t+2*Math.PI/3)*r]
-    arr[0].A = A;
-    arr[0].B = B;
-    arr[0].C = C;
-    r+=10;
-
-    beginShape()
-    fill(arr[0].color)
-    vertex(A[0], A[1])
-    vertex(B[0], B[1])
-    vertex(C[0], C[1])
-    endShape(CLOSE)
-
-    fill("yellow")
-    moveTriangle(child)
-    drawTriangle(child)
-
-    fill("green")
-    moveTriangle(child2)
-    drawTriangle(child2)
-    // noLoop()
+    // lets make the parent rotate around a fixed triangle called start
+    let a1 = lerp(start[0][0], start[1][0], arr[0].lerpDist)
+    let a2 = lerp(start[0][1], start[1][1], arr[0].lerpDist)
+    let b1 = lerp(start[1][0], start[2][0], arr[0].lerpDist)
+    let b2 = lerp(start[1][1], start[2][1], arr[0].lerpDist)
+    let c1 = lerp(start[2][0], start[0][0], arr[0].lerpDist)
+    let c2 = lerp(start[2][1], start[0][1], arr[0].lerpDist)
+    arr[0].A = [a1, a2]
+    arr[0].B = [b1, b2]
+    arr[0].C = [c1, c2]
+    arr[0].lerpDist += arr[0].speed
+    arr[0].lerpDist = arr[0].lerpDist % 1;
+    if(arr[0].lerpDist < 0) arr[0].lerpDist += 1;
+    drawTriangle(arr[0])
+    for(let i=1; i<arr.length; i++){
+        moveTriangle(arr[i])
+        drawTriangle(arr[i])
+    }
     let midpoint = [lerp(arr[0].A[0], arr[0].B[0], 0.5), lerp(arr[0].A[1], arr[0].B[1], 0.5)]
-    print("midpoint is "+midpoint)
-    // print(midpoint)
-    print(arr[0])
-    if (getDistToOrigin(midpoint) > killThresh) {
-        print("dist is"+getDistToOrigin(midpoint))
+    let startMidpoint = [lerp(start[0][0], start[1][0], 0.5), lerp(start[0][1], start[1][1], 0.5)]
+    if (getDistToOrigin(midpoint) >= getDistToOrigin(startMidpoint)-10) {  // todo: remove bandage
         bgcol = arr[0].color;
         replaceLargest();
+        appendSmallest();
         // delete largest here from
     }
     
+}
+
+function pickColor() {
+    let r = random(100, 255)
+    let g = random(100, 255)
+    let b = random(100, 255)
+    return color(r, g, b)
 }
 
 function getDistToOrigin(pair) {
@@ -83,6 +97,12 @@ function getDistToOrigin(pair) {
 function replaceLargest() {
     print("replaced")
     arr.shift();
+    r = getDistToOrigin(arr[0].A)  // adjust the radius
+}
+
+function appendSmallest(lerpDist = 0) {
+    let p = arr[arr.length-1]
+    arr.push(new Triangle(p.A.slice(), p.B.slice(), p.C.slice(), -0.005, p, lerpDist, color("yellow")))
 }
 
 function moveTriangle(tri) {
@@ -100,6 +120,7 @@ function moveTriangle(tri) {
 
 function drawTriangle(tri) {
     beginShape()
+    fill(tri.color)
     vertex(tri.A[0], tri.A[1])
     vertex(tri.B[0], tri.B[1])
     vertex(tri.C[0], tri.C[1])
