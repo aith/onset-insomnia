@@ -1,3 +1,4 @@
+/* A spin-off of loop subdivision! Wake me up when I learn how to choose colors interestingly. */
 let can;
 let canw = 1000;
 let canh = 1000;
@@ -18,7 +19,7 @@ let parent;
 let child;  
 let child2; 
 let arr = [];
-let totalTri = 18;
+let totalTri = 20;
 
 let starth = Math.sqrt((3*canh)*(3*canh) - (1.5*canw)*(1.5*canw))
 let start = [
@@ -43,11 +44,9 @@ function setup() {
 let base = r = 300;
 function draw() {
     background(bgcol)
-    let t = frameCount/30;
-    // let t = 1;
     translate(canw/2, canh/2)
 
-    // lets make the parent rotate around a fixed triangle called start
+    // The same thing as DrawTriangle, but for start, TODO move to helper
     let a1 = lerp(start[0][0], start[1][0], arr[0].lerpDist)
     let a2 = lerp(start[0][1], start[1][1], arr[0].lerpDist)
     let b1 = lerp(start[1][0], start[2][0], arr[0].lerpDist)
@@ -61,6 +60,8 @@ function draw() {
     arr[0].lerpDist = arr[0].lerpDist % 1;
     if(arr[0].lerpDist < 0) arr[0].lerpDist += 1;
     drawTriangle(arr[0])
+
+
     for(let i=1; i<arr.length; i++){
         moveTriangle(arr[i])
         drawTriangle(arr[i])
@@ -71,16 +72,19 @@ function draw() {
         bgcol = arr[0].color;
         replaceLargest();
         appendSmallest();
-        // delete largest here from
     }
-    
 }
 
+let lastCol = Math.random(0,360);
 function pickColor() {
-    let r = random(100, 255)
-    let g = random(100, 255)
-    let b = random(100, 255)
-    return color(r, g, b)
+    colorMode(HSB)
+    let h = lastCol + random(40,50);
+    h = h % 360;
+    // while(abs(lastCol-h) < 40) h = random(0, 360) // 0 to 360
+    lastCol = h;
+    let s = 50
+    let b = 100
+    return color(h, s, b, 255)
 }
 
 function pickLerpDist() {
@@ -89,7 +93,6 @@ function pickLerpDist() {
 
 function pickSpeed() {
     let sign = Math.round(Math.random()) * 2 - 1 ;
-    print(sign)
     let speed = random(0.004, 0.0055) * sign;
     return speed;
 }
@@ -120,11 +123,11 @@ function moveTriangle(tri) {
     if(tri.lerpDist < 0) tri.lerpDist += 1;
 }
 
-
 function drawTriangle(tri) {
     beginShape()
     fill(tri.color)
-    noStroke()
+    // noStroke()
+    strokeWeight(1)
     vertex(tri.A[0], tri.A[1])
     vertex(tri.B[0], tri.B[1])
     vertex(tri.C[0], tri.C[1])
